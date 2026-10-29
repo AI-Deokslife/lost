@@ -1,0 +1,15 @@
+{
+  "name": "lost-and-found",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "setup": "node setup.mjs",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute lost-and-found --local --file=schema.sql",
+    "db:remote": "wrangler d1 execute lost-and-found --remote --file=schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

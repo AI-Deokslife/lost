@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lost-and-found",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-01",
+  "observability": { "enabled": true },
+
+  // 정적 파일(학생·관리자 화면). /api/* 만 Worker 코드가 처리합니다.
+  "assets": { "directory": "./public", "binding": "ASSETS" },
+
+  // 분실물·신청·신고·사진 데이터베이스 (npm run setup 이 id를 자동으로 채웁니다)
+  "d1_databases": [
+    { "binding": "DB", "database_name": "lost-and-found", "database_id": "REPLACE_WITH_D1_DATABASE_ID" }
+  ],
+
+  // AI 자동 태깅 (Workers AI)
+  "ai": { "binding": "AI" },
+
+  "vars": {
+    "SCHOOL_NAME": "○○고등학교",
+    // 사이트 이름 (설정 화면에서도 바꿀 수 있음)
+    "SITE_NAME": "찾아줘",
+    // 로그인 방식: "password"(학생 입장 코드 + 관리자 비밀번호) 또는 "google"(학교 구글 계정)
+    "AUTH_MODE": "password",
+    // ---- 아래는 AUTH_MODE가 "google"일 때만 사용 ----
+    // 구글 클라우드 콘솔에서 만든 OAuth 클라이언트 ID
+    "GOOGLE_CLIENT_ID": "REPLACE_WITH_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    // 로그인 허용 도메인 (쉼표로 여러 개). 예: "school.kr,s.school.kr"
+    "ALLOWED_DOMAINS": "school.kr",
+    // 관리자(학생부) 이메일 (쉼표로 여러 개)
+    "ADMIN_EMAILS": "teacher1@school.kr",
+    // 교사 전용 도메인이 따로 있으면 그 도메인 전체를 관리자로 (없으면 비워 두기)
+    "ADMIN_DOMAINS": "",
+    // ---- 공통 ----
+    // 보관 기한(일)
+    "RETENTION_DAYS": "30",
+    "AI_MODEL": "@cf/meta/llama-4-scout-17b-16e-instruct"
+  }
+}

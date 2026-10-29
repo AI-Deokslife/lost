@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="찾아줘">
+<link rel="manifest" href="/api/manifest">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<title>주운 물건 등록</title>
+<style>
+  main { max-width: 640px; }
+  .who-card { display: flex; align-items: center; gap: 12px; }
+  .merit-banner { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-radius: var(--r-md); margin-bottom: 4px;
+    background: linear-gradient(135deg, #fff4dc, #ffe9f1); }
+  .merit-banner .big { font-size: 26px; }
+  .merit-banner b { display: block; }
+  .error-page { text-align: center; padding: 90px 16px; }
+  .error-page .i { width: 64px; height: 64px; color: var(--label-3); }
+  #dropSubmit { margin-top: 24px; }
+  @media (max-width: 760px) { #dropSubmit { position: sticky; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 15; box-shadow: 0 10px 30px rgba(0, 113, 227, .35); } }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <span class="brand"><span class="appicon" id="logo"></span><span class="brand-text"><b data-site>찾아줘</b><small><span data-school></span> <span data-dept></span></small></span></span>
+  </div>
+</header>
+<main>
+  <div id="blocked" class="hidden"></div>
+  <section id="formWrap" class="hidden">
+    <div class="large-title"><h1>주운 물건 등록</h1><p>물건을 주워 줘서 고마워요! 사진을 찍고 몇 가지만 골라 주세요.</p></div>
+    <div id="meritBanner"></div>
+
+    <input type="file" id="file" accept="image/*" capture="environment" class="hidden">
+    <div class="group-title">1. 물건 사진</div>
+    <button type="button" class="drop" id="pick"><span class="circle" id="camIcon"></span><b>사진 찍기</b><small>물건이 잘 보이게 찍어 주세요</small></button>
+    <div id="editorWrap" class="hidden">
+      <div id="sensitive" class="warn-box hidden"><span id="warnIcon"></span><span><b>이름·학생증·카드번호가 보이면</b> 그 부분을 손가락으로 드래그해서 가려 주세요.</span></div>
+      <div class="editor"><canvas id="canvas"></canvas><div class="hint-chip" id="mosaicHint"></div></div>
+      <div class="toolbar">
+        <button type="button" class="btn sm" id="undo"></button>
+        <button type="button" class="btn sm" id="repick"></button>
+        <span class="spacer"></span>
+        <button type="button" class="btn sm ai hidden" id="aiBtn"></button>
+      </div>
+    </div>
+
+    <form id="dropForm">
+      <div class="group-title">2. 어떤 물건인가요?</div>
+      <div class="group"><div class="cell stack"><div class="chips" id="fCategory"></div></div></div>
+      <div class="group-title">3. 어디서 주웠나요?</div>
+      <div class="group">
+        <div class="cell stack"><div class="chips" id="fLocation"></div></div>
+        <label class="cell"><span class="label">세부 장소</span><input type="text" name="location_detail" placeholder="3-2 교실, 매점 앞"></label>
+      </div>
+      <div class="group-title">4. 특징 (선택)</div>
+      <div class="group">
+        <label class="cell"><span class="label">색상</span><select name="color" id="fColor"></select></label>
+        <label class="cell"><span class="label">설명</span><input type="text" name="description" id="fDesc" placeholder="파란색 텀블러, 스티커 부착"></label>
+      </div>
+      <div class="group-title">5. 주운 사람</div>
+      <div class="group">
+        <label class="cell"><span class="label">학번</span><input type="text" name="finder_no" required inputmode="numeric" pattern="[0-9]{3,10}" placeholder="10203"></label>
+        <label class="cell"><span class="label">이름</span><input type="text" name="finder_name" required placeholder="홍길동"></label>
+      </div>
+      <div class="group-foot" id="privacyNote"></div>
+      <button class="btn primary large" id="dropSubmit">등록하기</button>
+    </form>
+  </section>
+</main>
+<script type="module" src="/drop.js"></script>
+</body>
+</html>

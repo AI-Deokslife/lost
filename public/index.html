@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="찾아줘">
+<link rel="manifest" href="/api/manifest">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<title>찾아줘</title>
+</head>
+<body class="has-tabbar">
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="/"><span class="appicon" id="logo"></span><span class="brand-text"><b data-site>찾아줘</b><small><span data-school></span> 분실물</small></span></a>
+    <span data-admin-slot class="hidden"></span>
+    <button class="icon-btn" data-logout aria-label="로그아웃" id="logoutBtn"></button>
+  </div>
+</header>
+<nav class="tabbar" id="tabbar"></nav>
+
+<main>
+  <section id="browse">
+    <div class="large-title">
+      <h1>분실물</h1>
+      <p id="lead">주인을 기다리는 물건들이에요.</p>
+    </div>
+    <div id="installSlot" class="hidden"></div>
+    <label class="searchbar"><span id="searchIcon"></span><input type="search" id="q" placeholder="에어팟, 텀블러, 3-2반…" autocomplete="off"></label>
+    <div class="pills" id="fCategory"></div>
+    <div class="menus">
+      <span class="menu"><select id="fLocation"></select></span>
+      <span class="menu"><select id="fColor"></select></span>
+      <span class="menu"><select id="fPeriod">
+        <option value="">전체 기간</option><option value="3">최근 3일</option><option value="7">최근 1주</option><option value="30">최근 1달</option>
+      </select></span>
+    </div>
+
+    <div id="soon" class="hidden">
+      <div class="section-head"><h2>곧 처리돼요</h2><span class="muted small">기한이 지나면 폐기·기부돼요</span></div>
+      <div class="hscroll" id="soonList"></div>
+    </div>
+
+    <div class="section-head"><h2 id="gridTitle">모든 분실물</h2><span class="muted" id="count"></span></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="report" class="hidden">
+    <div class="large-title">
+      <h1>분실 신고</h1>
+      <p>잃어버린 물건을 미리 알려 주세요. 비슷한 물건이 들어오면 바로 알려 드려요.</p>
+    </div>
+    <form id="reportForm" style="max-width:640px">
+      <div class="group-title">어떤 물건인가요?</div>
+      <div class="group">
+        <div class="cell stack"><div class="chips" id="rCategory"></div></div>
+        <div class="cell stack"><textarea name="detail" required placeholder="예) 검은색 에어팟 프로 케이스, 뒷면에 곰돌이 스티커"></textarea></div>
+      </div>
+      <div class="group-title">언제, 어디서?</div>
+      <div class="group">
+        <label class="cell"><span class="label">색상</span><select name="color" id="rColor"></select></label>
+        <label class="cell"><span class="label">잃어버린 곳</span><select name="location" id="rLocation"></select></label>
+        <label class="cell"><span class="label">잃어버린 날</span><input type="date" name="lost_date" id="rDate"></label>
+      </div>
+      <div class="group-title">신고하는 사람</div>
+      <div class="group">
+        <label class="cell"><span class="label">학번</span><input type="text" name="student_no" required placeholder="10203" inputmode="numeric"></label>
+        <label class="cell"><span class="label">이름</span><input type="text" name="student_name" required placeholder="홍길동"></label>
+      </div>
+      <div class="group-foot">비슷한 물건이 들어오면 ‘내 신청’ 탭에 바로 표시돼요.</div>
+      <button class="btn primary large" style="margin-top:24px">신고하기</button>
+    </form>
+  </section>
+
+  <section id="mine" class="hidden">
+    <div class="large-title">
+      <h1>내 신청</h1>
+      <p>이 기기에서 신청하고 신고한 내역이에요.</p>
+    </div>
+    <div style="max-width:720px">
+      <div id="matchBanner"></div>
+      <div class="group-title">수령 신청</div>
+      <div class="group" id="myClaims"></div>
+      <div class="group-title">분실 신고</div>
+      <div class="group" id="myReports"></div>
+    </div>
+  </section>
+</main>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

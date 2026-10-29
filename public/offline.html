@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="찾아줘">
+<link rel="manifest" href="/api/manifest">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<title>연결 끊김 · 찾아줘</title>
+<style>
+  body { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px; text-align: center; }
+  .box { max-width: 340px; }
+  .circle { width: 96px; height: 96px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; margin: 0 auto 24px; color: var(--label-2); }
+  .circle svg { width: 44px; height: 44px; }
+  h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.03em; }
+  p { color: var(--label-2); margin: 0 0 28px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></svg></div>
+  <h1>인터넷에 연결되지 않았어요</h1>
+  <p>와이파이나 데이터 연결을 확인한 뒤<br>다시 시도해 주세요.</p>
+  <button class="btn primary large" onclick="location.reload()">다시 시도</button>
+</div>
+</body>
+</html>

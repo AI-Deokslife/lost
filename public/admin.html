@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="찾아줘">
+<link rel="manifest" href="/api/manifest">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<title>찾아줘 · 관리</title>
+</head>
+<body class="has-sidebar">
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="/admin"><span class="appicon" id="logo"></span><span class="brand-text"><b data-site>찾아줘</b><small><span data-school></span> <span data-dept>학생부</span></small></span></a>
+    <a class="nav-link" href="/" id="lnStudent"></a>
+    <a class="nav-link" href="/today" target="_blank" id="lnTv"></a>
+    <button class="icon-btn" data-logout aria-label="로그아웃" id="logoutBtn"></button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar"></aside>
+<nav class="tabbar admin-tabbar" id="atabbar"></nav>
+
+<main>
+  <section id="denied" class="hidden">
+    <div class="empty" style="padding-top:120px"><span id="deniedIcon"></span><b><span data-dept>학생부</span> 계정이 아니에요</b><span>관리자 비밀번호로 다시 로그인해 주세요.</span>
+      <div style="margin-top:20px"><a class="btn primary" href="/login?next=/admin" data-logout>다시 로그인</a></div></div>
+  </section>
+
+  <!-- 등록 -->
+  <section id="register" class="hidden">
+    <div class="large-title"><h1>등록</h1><p>사진 찍고, 고르고, 끝.</p></div>
+    <div class="reg">
+      <div class="reg-photo">
+        <input type="file" id="file" accept="image/*" capture="environment" class="hidden">
+        <button type="button" class="drop" id="pick"><span class="circle" id="camIcon"></span><b>사진 찍기</b><small>휴대폰이면 바로 카메라가 열려요</small></button>
+        <div id="editorWrap" class="hidden">
+          <div id="sensitive" class="warn-box hidden"><span id="warnIcon"></span><span><b>개인정보가 보일 수 있어요.</b> 이름·학생증·카드번호·화면 부분을 손가락으로 드래그해 가려 주세요.</span></div>
+          <div class="editor"><canvas id="canvas"></canvas><div class="hint-chip" id="mosaicHint"></div></div>
+          <div class="toolbar">
+            <button type="button" class="btn sm" id="undo"></button>
+            <button type="button" class="btn sm" id="repick"></button>
+            <button type="button" class="btn sm" id="removePhoto">사진 빼기</button>
+            <span class="spacer"></span>
+            <button type="button" class="btn sm ai" id="aiBtn"></button>
+          </div>
+        </div>
+      </div>
+      <form id="regForm">
+        <div class="group-title">품목</div>
+        <div class="group"><div class="cell stack"><div class="chips" id="regCategory"></div></div></div>
+        <div class="group-title">주운 곳</div>
+        <div class="group">
+          <div class="cell stack"><div class="chips" id="regLocation"></div></div>
+          <label class="cell"><span class="label">세부 장소</span><input type="text" name="location_detail" placeholder="3-2 교실, 매점 앞"></label>
+          <label class="cell"><span class="label">주운 날</span><input type="date" name="found_date" id="regDate"></label>
+        </div>
+        <div class="group-title">특징</div>
+        <div class="group">
+          <label class="cell"><span class="label">색상</span><select name="color" id="regColor"></select></label>
+          <label class="cell"><span class="label">설명</span><input type="text" name="description" id="regDesc" placeholder="파란색 텀블러, 스티커 부착"></label>
+        </div>
+        <div class="group" style="margin-top:20px">
+          <label class="cell"><span class="icon-tile" style="background:#8e8e93" id="lockTile"></span><span class="text"><b>귀중품</b><small>학생에게 사진을 숨기고 글로만 보여줘요</small></span>
+            <span class="switch"><input type="checkbox" name="valuable" value="1" id="regValuable"><span></span></span></label>
+        </div>
+        <button class="btn primary large" id="regSubmit" style="margin-top:24px">등록하기</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 물품 -->
+  <section id="items" class="hidden">
+    <div class="large-title"><div class="row-between"><div><h1>물품</h1><p id="itemsLead"></p></div>
+      <div class="seg" id="istatus">
+        <button data-v="active" class="on">보관 중</button><button data-v="requested">수령 신청</button><button data-v="returned">수령 완료</button><button data-v="disposed">폐기·기부</button><button data-v="all">전체</button>
+      </div></div></div>
+    <label class="searchbar" style="max-width:none;margin-bottom:16px"><span class="si"></span><input type="search" id="iq" placeholder="등록번호, 특징, 장소, 받은 학생"></label>
+    <div class="group" id="itemList"></div>
+  </section>
+
+  <!-- 학생 등록 -->
+  <section id="drops" class="hidden">
+    <div class="large-title"><div class="row-between"><div><h1>학생 등록</h1><p>학생이 교무실 QR로 직접 등록한 물건이에요.</p></div>
+      <div class="seg" id="dstatus"><button data-v="review" class="on">확인 대기</button><button data-v="public">공개 중</button><button data-v="merit">상점 대상</button><button data-v="given">상점 부여</button><button data-v="all">전체</button></div></div></div>
+    <div id="dropHint"></div>
+    <div class="group" id="dropList"></div>
+    <div class="action-bar hidden" id="dropBar">
+      <span id="dropCount" class="small"></span><span class="spacer"></span>
+      <button class="btn sm plain" id="dropAll">전체 선택</button>
+      <span id="dropActions" style="display:flex;gap:8px"></span>
+    </div>
+  </section>
+
+  <!-- 수령 신청 -->
+  <section id="claims" class="hidden">
+    <div class="large-title"><h1>수령 신청</h1><p>학생이 오기 전에 물건을 미리 꺼내 두세요.</p></div>
+    <div id="claimList"></div>
+  </section>
+
+  <!-- 분실 신고 -->
+  <section id="match" class="hidden">
+    <div class="large-title"><div class="row-between"><div><h1>분실 신고</h1><p>비슷한 습득물을 자동으로 찾아 보여줘요.</p></div>
+      <div class="seg" id="rstatus"><button data-v="open" class="on">찾는 중</button><button data-v="matched">연락 완료</button><button data-v="closed">종료</button></div></div></div>
+    <div id="reportList"></div>
+  </section>
+
+  <!-- 처리 대상 -->
+  <section id="expired" class="hidden">
+    <div class="large-title"><h1>처리 대상</h1><p id="retentionHint"></p></div>
+    <div class="group" id="expiredList"></div>
+    <div class="action-bar hidden" id="bulkBar">
+      <span id="bulkCount" class="small"></span><span class="spacer"></span>
+      <button class="btn sm plain" id="selectAll">전체 선택</button>
+      <button class="btn sm destructive" data-bulk="폐기">폐기</button>
+      <button class="btn sm primary" data-bulk="기부">기부</button>
+    </div>
+  </section>
+
+  <!-- 통계 -->
+  <section id="stats" class="hidden">
+    <div class="large-title"><div class="row-between"><div><h1>통계</h1><p>많이 잃어버리는 물건과 장소를 한눈에.</p></div>
+      <input type="month" id="month" class="field" style="width:auto;padding:8px 14px"></div></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="panels">
+      <div class="panel-card"><h3>품목별</h3><div id="byCategory"></div></div>
+      <div class="panel-card"><h3>장소별</h3><div id="byLocation"></div></div>
+    </div>
+    <div class="panel-card" style="margin-top:16px"><h3>월별 추이</h3><div class="cols" id="monthly"></div>
+      <div class="legend"><span style="--c:var(--green)">주인 찾음</span><span style="--c:var(--label-3)">폐기·기부</span><span style="--c:var(--fill)">보관 중</span></div></div>
+  </section>
+
+  <!-- 설정 -->
+  <section id="settings" class="hidden">
+    <div class="large-title"><h1>설정</h1><p>명령 창 없이 여기서 바로 바꿀 수 있어요.</p></div>
+    <div style="max-width:680px">
+      <form id="basicForm">
+        <div class="group-title">학교</div>
+        <div class="group">
+          <label class="cell"><span class="label">사이트 이름</span><input type="text" name="siteName" required maxlength="20" placeholder="찾아줘"></label>
+          <label class="cell"><span class="label">학교 이름</span><input type="text" name="schoolName" required></label>
+          <label class="cell"><span class="label">담당 부서</span><input type="text" name="deptName" required maxlength="20" placeholder="학생부, 생활안전부 …"></label>
+          <label class="cell"><span class="label">보관 기한</span><input type="number" name="retentionDays" min="1" max="365" required style="max-width:80px"><span class="muted">일</span></label>
+        </div>
+        <div class="group-foot">사이트 이름과 담당 부서 이름은 학생 화면, 포스터, 홈 화면 아이콘, 안내 문구에 모두 쓰여요.</div>
+        <div class="group-title">장소 목록</div>
+        <div class="group"><div class="cell stack">
+          <div class="edit-chips" id="locChips"></div>
+          <div class="add-row"><input class="field" id="locInput" placeholder="새 장소 (예: 본관 2층, 별관)" maxlength="20"><button type="button" class="btn tinted" id="locAdd">추가</button></div>
+        </div></div>
+        <div class="group-foot">등록할 때와 학생이 신고할 때 고르는 장소예요. 이미 등록된 물건에는 영향이 없어요.</div>
+        <button class="btn primary" style="margin-top:16px">학교 설정 저장</button>
+      </form>
+
+      <div id="pwSettings">
+        <div class="group-title">학생 입장 코드</div>
+        <form class="group" id="codeForm">
+          <div class="cell"><span class="label">현재 코드</span><span class="value code-display" id="curCode"></span></div>
+          <label class="cell"><span class="label">새 코드</span><input type="text" name="code" placeholder="4자 이상" autocomplete="off"></label>
+          <label class="cell"><span class="text"><b>기존 학생 모두 로그아웃</b><small>코드가 밖으로 퍼졌을 때 켜세요</small></span>
+            <span class="switch"><input type="checkbox" name="logoutAll"><span></span></span></label>
+          <div class="cell"><button class="btn tinted sm">입장 코드 바꾸기</button></div>
+        </form>
+
+        <div class="group-title">관리자 비밀번호</div>
+        <form class="group" id="adminPwForm">
+          <label class="cell"><span class="label">현재 비밀번호</span><input type="password" name="current" required autocomplete="current-password"></label>
+          <label class="cell"><span class="label">새 비밀번호</span><input type="password" name="next" required minlength="8" placeholder="8자 이상" autocomplete="new-password"></label>
+          <div class="cell"><button class="btn tinted sm">비밀번호 바꾸기</button></div>
+        </form>
+        <div class="group-foot">바꾸면 다른 기기의 관리자 로그인은 풀려요.</div>
+      </div>
+
+      <div class="group-title">학생 직접 등록 (교무실 QR)</div>
+      <form class="group" id="dropForm">
+        <label class="cell"><span class="text"><b>학생 직접 등록 받기</b><small>교무실 QR을 찍으면 비밀번호 없이 등록</small></span>
+          <span class="switch"><input type="checkbox" name="enabled"><span></span></span></label>
+        <label class="cell"><span class="text"><b>선생님 확인 후 공개</b><small>끄면 등록 즉시 학생 화면에 올라가요</small></span>
+          <span class="switch"><input type="checkbox" name="review"><span></span></span></label>
+        <label class="cell"><span class="text"><b>상점 부여</b><small>등록한 학생을 상점 대상으로 기록</small></span>
+          <span class="switch"><input type="checkbox" name="meritEnabled"><span></span></span></label>
+        <label class="cell"><span class="label">상점 점수</span><input type="number" name="meritPoints" min="1" max="10" required><span class="muted">점</span></label>
+        <div class="cell"><button class="btn tinted sm">저장</button></div>
+      </form>
+      <div class="group" style="margin-top:12px">
+        <a class="cell tap" href="/poster?type=drop" target="_blank" style="color:inherit"><span class="icon-tile" style="background:#ff9500" id="dropQrIcon"></span>
+          <span class="text"><b>등록용 QR 포스터</b><small>교무실 책상에 세워 둘 안내문</small></span><span id="dropChev"></span></a>
+        <div class="cell tap" id="rotateDrop"><span class="icon-tile" style="background:#8e8e93" id="rotateIcon"></span>
+          <span class="text"><b>QR 새로 만들기</b><small>QR이 밖으로 퍼졌을 때 · 예전 QR은 더 이상 열리지 않아요</small></span></div>
+      </div>
+
+      <div class="group-title">도구</div>
+      <div class="group" id="tools"></div>
+    </div>
+  </section>
+</main>
+<script type="module" src="/admin.js"></script>
+</body>
+</html>

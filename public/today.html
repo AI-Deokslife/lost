@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="찾아줘">
+<link rel="manifest" href="/api/manifest">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<title>오늘의 분실물</title>
+<style>
+  html, body { height: 100%; overflow: hidden; }
+  body { background: radial-gradient(1400px 800px at 0% -20%, #dcebff 0%, transparent 60%), radial-gradient(1100px 700px at 110% 120%, #efe5ff 0%, transparent 55%), #f5f7fb; color: var(--label); cursor: none; }
+  .wrap { height: 100%; display: flex; flex-direction: column; padding: 4.5vh 4vw 3vh; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 3.5vh; }
+  .eyebrow { font-size: clamp(14px, 1.4vw, 22px); color: var(--blue); font-weight: 600; }
+  h1 { font-size: clamp(36px, 4.6vw, 80px); font-weight: 700; letter-spacing: -0.04em; margin: .2vh 0 0; line-height: 1.05; }
+  .clock { text-align: right; font-variant-numeric: tabular-nums; }
+  .clock b { display: block; font-size: clamp(32px, 3.6vw, 64px); font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+  .clock span { font-size: clamp(14px, 1.3vw, 22px); color: var(--label-2); }
+  .stage { flex: 1; position: relative; min-height: 0; }
+  .page { position: absolute; inset: 0; display: grid; gap: 2vw; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(2, 1fr);
+    opacity: 0; transform: translateX(40px); transition: opacity .8s var(--ease), transform .8s var(--ease); pointer-events: none; }
+  .page.on { opacity: 1; transform: none; }
+  .page.out { opacity: 0; transform: translateX(-40px); }
+  .tv-card { background: var(--surface); border-radius: 32px; box-shadow: 0 12px 40px rgba(30, 50, 90, .1); overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+  .tv-card .media { aspect-ratio: auto; flex: 1; min-height: 0; background: var(--surface-2); }
+  .tv-card .ph .i { width: 25%; height: auto; }
+  .tv-card .body { padding: 1.4vh 1.2vw 1.8vh; }
+  .tv-card .t { font-size: clamp(16px, 1.5vw, 28px); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tv-card .m { font-size: clamp(12px, 1vw, 18px); color: var(--label-2); margin-top: .3vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tv-card .tag { font-size: clamp(11px, .8vw, 15px); }
+  footer { display: flex; align-items: center; justify-content: space-between; margin-top: 2.5vh; color: var(--label-2); font-size: clamp(14px, 1.2vw, 22px); }
+  .dots { display: flex; gap: 8px; }
+  .dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--fill); transition: width .4s, background .4s; }
+  .dots i.on { width: 28px; background: var(--blue); }
+  .site { display: flex; align-items: center; gap: 10px; }
+  .site .i { color: var(--blue); }
+  .empty { color: var(--label-2); font-size: clamp(20px, 2vw, 34px); padding-top: 18vh; }
+  .empty .i { width: 80px; height: 80px; }
+  .empty b { color: var(--label); font-size: clamp(26px, 2.6vw, 44px); }
+  .tv-tools { position: fixed; top: 16px; right: 16px; z-index: 5; display: flex; gap: 8px; opacity: 0; transition: opacity .3s; }
+  body:hover .tv-tools { opacity: 1; } body:hover { cursor: default; }
+</style>
+</head>
+<body>
+<div class="tv-tools"><span data-admin-slot class="hidden"></span><button class="btn sm" id="fs">전체 화면</button></div>
+<div class="wrap">
+  <header>
+    <div><div class="eyebrow"><span data-site></span> · <span data-school></span> 분실물</div><h1 id="head">오늘의 분실물</h1></div>
+    <div class="clock"><b id="time"></b><span id="date"></span></div>
+  </header>
+  <div class="stage" id="stage"></div>
+  <footer><div class="site" id="site"></div><div class="dots" id="dots"></div></footer>
+</div>
+<script type="module">
+import { api, $, esc, icon, boot, placeText, mediaHtml, relDate, emptyHtml } from '/common.js';
+const { config } = await boot();
+$('#site').innerHTML = `${icon('smartphone')}<span>${esc(location.host)} (${esc(config.siteName)})에서 “내 것 같아요”를 눌러 주세요</span>`;
+$('#fs').addEventListener('click', () => document.documentElement.requestFullscreen?.());
+
+const days = ['일', '월', '화', '수', '목', '금', '토'];
+function tick() {
+  const d = new Date();
+  $('#time').textContent = d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
+  $('#date').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+}
+tick(); setInterval(tick, 10_000);
+
+let pages = [], cur = 0;
+const cols = () => Math.max(2, Math.min(6, Math.floor(innerWidth / 300)));
+function card(i) {
+  const tags = i.valuable ? '' : '';
+  return `<div class="tv-card">${mediaHtml(i, 'media', tags)}<div class="body">
+    <div class="t">${esc(i.description || i.category)}</div>
+    <div class="m">${esc(placeText(i))} · ${relDate(i.found_date)} · ${esc(i.reg_no)}</div></div></div>`;
+}
+function show(n) {
+  const els = [...document.querySelectorAll('.page')];
+  els.forEach((p, k) => { p.classList.toggle('on', k === n); p.classList.toggle('out', k !== n && p.classList.contains('on')); });
+  [...document.querySelectorAll('.dots i')].forEach((d, k) => d.classList.toggle('on', k === n));
+}
+async function load() {
+  let data;
+  try { data = await api('/api/today'); } catch { return; }
+  const { range, items } = data;
+  $('#head').textContent = range === 'today' ? `오늘 들어온 분실물 ${items.length}개` : '최근 1주일 동안 들어온 분실물';
+  const c = cols(), per = c * 2;
+  pages = [];
+  for (let k = 0; k < items.length; k += per) pages.push(items.slice(k, k + per));
+  $('#stage').style.setProperty('--cols', c);
+  $('#stage').innerHTML = pages.length
+    ? pages.map(p => `<div class="page" style="--cols:${c}">${p.map(card).join('')}</div>`).join('')
+    : emptyHtml('새로 들어온 분실물이 없어요', '분실물이 생기면 여기에 바로 보여요.', 'sparkles');
+  $('#dots').innerHTML = pages.length > 1 ? pages.map(() => '<i></i>').join('') : '';
+  cur = 0; show(0);
+}
+load();
+setInterval(() => { if (pages.length > 1) { cur = (cur + 1) % pages.length; show(cur); } }, 10_000);
+setInterval(load, 5 * 60_000);
+addEventListener('resize', () => { clearTimeout(window._rz); window._rz = setTimeout(load, 300); });
+</script>
+</body>
+</html>
